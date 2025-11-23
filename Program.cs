@@ -17,8 +17,7 @@ void GetHttpHandler(HttpRequest req, HttpResponse res)
   res.StatusCode = 200;
   res.StatusMessage = "OK";
   res.Headers["Content-Type"] = "text/plain";
-  // res.Body = "Hello from the handler!";
-  res.Body = req.Body;
+  res.Body = "Hello from the handler!";
   
   // res.StatusCode = 401;
   // res.StatusMessage = "Forbidden";
@@ -29,4 +28,4 @@ void GetHttpHandler(HttpRequest req, HttpResponse res)
 HttpServer server = new HttpServer();
 
 server.RegisterRoute("/", GetHttpHandler);
-await server.Start(IPAddress.Parse("127.0.0.1"), 42069);
+await server.Start(IPAddress.Parse("127.0.0.1"), 8000);
