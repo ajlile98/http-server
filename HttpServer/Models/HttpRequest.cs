@@ -14,16 +14,13 @@ public class HttpRequest
   {
     var sb = new StringBuilder();
     
-    // Request line
     sb.AppendLine($"{RequestLine.Method} {RequestLine.RequestTarget} HTTP/{RequestLine.HttpVersion}");
     
-    // Headers
     foreach (var header in Headers)
     {
       sb.AppendLine($"{header.Key}: {header.Value}");
     }
     
-    // Empty line separating headers from body
     if (!string.IsNullOrEmpty(Body))
     {
       sb.AppendLine();

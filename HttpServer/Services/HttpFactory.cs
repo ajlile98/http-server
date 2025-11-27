@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using HttpServerApp.Interfaces;
 using HttpServerApp.Models;
 using Microsoft.Extensions.Logging;
@@ -39,25 +40,44 @@ public class HttpFactory(ILogger<HttpFactory> logger, IStreamParserFactory strea
           else
           {
             var trimmedLine = line.Trim();
-            
+
             int colonIndex = trimmedLine.IndexOf(": ", StringComparison.Ordinal);
             if (colonIndex == -1)
             {
               _logger.LogError("Malformed header: {Header}", line);
               throw new FormatException($"Malformed header: {line}");
             }
-            
+
             var headerKey = trimmedLine.AsSpan(0, colonIndex);
-            
+
             if (headerKey.Length > 0 && char.IsWhiteSpace(headerKey[^1]))
             {
               _logger.LogError("Malformed header (space before colon): {Header}", line);
               throw new FormatException($"Malformed header (space before colon): {line}");
             }
-            
+
+            // Validate header key contains only valid token characters
+            // RFC 9110: token = 1*tchar, tchar = visible ASCII except delimiters
+            foreach (char c in headerKey)
+            {
+              if (c < 33 || c > 126 || "\"(),/:;<=>?@[\\]{}".Contains(c))
+              {
+                _logger.LogError("Malformed header (invalid character in key): {Header}", line);
+                throw new FormatException($"Malformed header (invalid character in key): {line}");
+              }
+            }
+
             var headerValue = trimmedLine.AsSpan(colonIndex + 2);
-            
-            headers.Add(headerKey.ToString(), headerValue.ToString());
+            var headerKeyString = headerKey.ToString();
+
+            if (headers.ContainsKey(headerKeyString))
+            {
+              headers[headerKeyString] = headers[headerKeyString] + ", " + headerValue.ToString();
+            }
+            else
+            {
+              headers.Add(headerKeyString, headerValue.ToString());
+            }
           }
           break;
         case ParserState.BODY:
@@ -80,4 +100,5 @@ public class HttpFactory(ILogger<HttpFactory> logger, IStreamParserFactory strea
       Body = body,
     };
   }
+
 }

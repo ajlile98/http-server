@@ -137,9 +137,9 @@ public sealed class TestStreamParser
   }
 
   [TestMethod]
-  public async Task TestInvalidSpacingHeader()
+  public async Task TestValidSingleHeaderWithExtraWhitespace()
   {
-    var requestText = "GET / HTTP/1.1\r\n       Host : localhost:42069       \r\n\r\n";
+    var requestText = "GET / HTTP/1.1\r\n          Host: localhost:42069          \r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
@@ -147,13 +147,92 @@ public sealed class TestStreamParser
     var parserFactory = new StreamParserFactory(logger);
     var httpFactory = new HttpFactory(CreateMockLogger<HttpFactory>(), parserFactory);
     
-    // Should throw FormatException for malformed header
+    var request = await httpFactory.GetRequestFromStream(memoryStream);
+
+    Assert.IsNotNull(request);
+    Assert.IsTrue(request.Headers.ContainsKey("Host"));
+    Assert.AreEqual("localhost:42069", request.Headers["Host"]);
+  }
+
+  [TestMethod]
+  public async Task TestValid2HeadersWithExistingHeaders()
+  {
+    var requestText = "GET / HTTP/1.1\r\nHost: localhost:42069\r\nUser-Agent: TestClient/1.0\r\nAccept: */*\r\n\r\n";
+    var requestBytes = Encoding.UTF8.GetBytes(requestText);
+    var memoryStream = new MemoryStream(requestBytes);
+    
+    var logger = CreateMockLogger<StreamParser>();
+    var parserFactory = new StreamParserFactory(logger);
+    var httpFactory = new HttpFactory(CreateMockLogger<HttpFactory>(), parserFactory);
+    
+    var request = await httpFactory.GetRequestFromStream(memoryStream);
+
+    Assert.IsNotNull(request);
+    Assert.HasCount(3, request.Headers);
+    Assert.AreEqual("localhost:42069", request.Headers["Host"]);
+    Assert.AreEqual("TestClient/1.0", request.Headers["User-Agent"]);
+    Assert.AreEqual("*/*", request.Headers["Accept"]);
+  }
+
+  [TestMethod]
+  public async Task TestInvalidSpacingHeader()
+  {
+    var requestText = "GET / HTTP/1.1\r\nHost : localhost:42069\r\n\r\n";
+    var requestBytes = Encoding.UTF8.GetBytes(requestText);
+    var memoryStream = new MemoryStream(requestBytes);
+    
+    var logger = CreateMockLogger<StreamParser>();
+    var parserFactory = new StreamParserFactory(logger);
+    var httpFactory = new HttpFactory(CreateMockLogger<HttpFactory>(), parserFactory);
+    
+    // Should throw FormatException for space before colon
     var exception = await Assert.ThrowsAsync<FormatException>(async () =>
     {
       await httpFactory.GetRequestFromStream(memoryStream);
     });
     
     Assert.IsNotNull(exception);
+    Assert.Contains("space before colon", exception.Message);
+  }
+
+  [TestMethod]
+  public async Task TestInvalidCharacterInHeaderKey()
+  {
+    var requestText = "GET / HTTP/1.1\r\nH©st: localhost:42069\r\n\r\n";
+    var requestBytes = Encoding.UTF8.GetBytes(requestText);
+    var memoryStream = new MemoryStream(requestBytes);
+    
+    var logger = CreateMockLogger<StreamParser>();
+    var parserFactory = new StreamParserFactory(logger);
+    var httpFactory = new HttpFactory(CreateMockLogger<HttpFactory>(), parserFactory);
+    
+    // Should throw FormatException for invalid character in header key
+    var exception = await Assert.ThrowsAsync<FormatException>(async () =>
+    {
+      await httpFactory.GetRequestFromStream(memoryStream);
+    });
+    
+    Assert.IsNotNull(exception);
+  }
+
+  [TestMethod]
+  public async Task TestMultipleHeaderValuesAsCsv()
+  {
+    var requestText = "GET / HTTP/1.1\r\nAccept: text/html\r\nAccept: application/json\r\nAccept: */*\r\n\r\n";
+    var requestBytes = Encoding.UTF8.GetBytes(requestText);
+    var memoryStream = new MemoryStream(requestBytes);
+    
+    var logger = CreateMockLogger<StreamParser>();
+    var parserFactory = new StreamParserFactory(logger);
+    var httpFactory = new HttpFactory(CreateMockLogger<HttpFactory>(), parserFactory);
+    
+    var request = await httpFactory.GetRequestFromStream(memoryStream);
+
+    TestContext?.WriteLine($"Accept header: {request.Headers["Accept"]}");
+
+    Assert.IsNotNull(request);
+    Assert.IsTrue(request.Headers.ContainsKey("Accept"));
+    Assert.AreEqual("text/html, application/json, */*", request.Headers["Accept"]);
   }
 }
 

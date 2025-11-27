@@ -2,8 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Channels;
 using HttpServerApp.Interfaces;
+using HttpServerApp.Models;
 using Microsoft.Extensions.Logging;
 
 namespace HttpServerApp.Services;
@@ -53,6 +55,22 @@ public class HttpServer(ILogger<HttpServer> logger, IStreamParserFactory parserF
     NetworkStream networkStream = client.GetStream();
     var req = await _httpFactory.GetRequestFromStream(networkStream);
     _logger.LogDebug($"Request: {req}");
+
+    var res_body = Encoding.UTF8.GetBytes(req.Body);
+    var res = new HttpResponse()
+    {
+      StatusLine = new(),
+      Headers = new()
+      {
+        {"Content-Length", $"{Encoding.UTF8.GetByteCount(req.Body)}"},
+        {"Connection", "close"},
+        {"Content-Type", "text/plain"},
+      },
+      Body = req.Body,
+    };
+
+    _logger.LogDebug($"Response: {res}");
+    await networkStream.WriteAsync(Encoding.UTF8.GetBytes(res.ToString()));
 
   }
 }
