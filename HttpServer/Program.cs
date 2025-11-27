@@ -1,6 +1,9 @@
 using System.Net;
 using HttpServerApp.Services;
-using HttpServerApp.Models;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using HttpServerApp.Interfaces;
 
 // void GetHttpHandler(HttpRequest req, HttpResponse res)
 // {
@@ -20,8 +23,29 @@ using HttpServerApp.Models;
 //     res.Body = req.Body;
 // }
 
-var server = new HttpServer();
+var builder = Host.CreateDefaultBuilder(args);
 
-// server.RegisterRoute("/", GetHttpHandler);
+builder.ConfigureServices((context, services) =>
+{
+    services.AddLogging(logging =>
+    {
+        logging.AddSimpleConsole(options =>
+        {
+            options.IncludeScopes = false;
+            options.SingleLine = true;
+            options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+            options.UseUtcTimestamp = false;
+        });
+        logging.SetMinimumLevel(LogLevel.Debug);
+    });
+    
+    services.AddSingleton<IStreamParserFactory, StreamParserFactory>();
+    services.AddSingleton<IHttpFactory, HttpFactory>();
+    services.AddSingleton<IHttpServer, HttpServer>();
+});
+
+var host = builder.Build();
+
+// DI automatically creates HttpServer with its logger dependency
+var server = host.Services.GetRequiredService<IHttpServer>();
 await server.Start(IPAddress.Parse("127.0.0.1"), 8000);
-Console.WriteLine("Hello world!");
