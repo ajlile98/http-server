@@ -53,7 +53,8 @@ public class HttpServer(
 
   public void Stop()
   {
-    throw new NotImplementedException();
+    server?.Stop();
+    _logger.LogInformation("Server stopped");
   }
   public async Task ProcessClient(TcpClient client)
   {
@@ -63,15 +64,6 @@ public class HttpServer(
     _logger.LogDebug($"Request: {req}");
 
     var res = new HttpResponse();
-    // {
-    //   StatusLine = new(),
-    //   Headers = new()
-    //   {
-    //     {"Connection", "close"},
-    //     {"Content-Type", "text/plain"},
-    //   },
-    //   Body = req.Body,
-    // };
     var route = Router.FindRoute(req.RequestLine.Method.ToString(), req.RequestLine.RequestTarget);
     if(route == null)
     {
