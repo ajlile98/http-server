@@ -108,35 +108,52 @@ Manages HTTP route registration and matching:
 ## Usage Example
 
 ```csharp
-using var app = host.Services.GetRequiredService<IHttpServer>();
-var router = host.Services.GetRequiredService<IRouter>();
+using System.Net;
+using HttpServerApp.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+// Setup dependency injection
+var builder = Host.CreateDefaultBuilder(args);
+
+builder.ConfigureServices((context, services) =>
+{
+    services.AddSingleton<IStreamParserFactory, StreamParserFactory>();
+    services.AddSingleton<IHttpFactory, HttpFactory>();
+    services.AddSingleton<IRouter, Router>();
+    services.AddSingleton<IHttpServer, HttpServer>();
+});
+
+var host = builder.Build();
+
+// Get server instance from DI
+var server = host.Services.GetRequiredService<IHttpServer>();
 
 // Register GET route
-router.Get("/", (req, res) =>
+server.Router.Get("/", (req, res) =>
 {
     res.StatusLine.StatusCode = "200";
-    res.StatusLine.ReasonPhrase = "OK";
-    res.Headers["Content-Type"] = "text/html";
-    res.Body = "<html><body>Hello, World!</body></html>";
+    res.Headers["Content-Type"] = "text/plain";
+    res.Body = "Hello, World!";
 });
 
 // Register POST route
-router.Post("/submit", (req, res) =>
+server.Router.Post("/api/users", (req, res) =>
 {
     res.StatusLine.StatusCode = "201";
-    res.StatusLine.ReasonPhrase = "Created";
-    res.Headers["Location"] = "/new-resource";
-    res.Body = "Resource created";
+    res.Headers["Location"] = "/api/users/123";
+    res.Body = "User created";
 });
 
 // Register ANY (all methods) route
-router.Any("/status", (req, res) =>
+server.Router.Any("/health", (req, res) =>
 {
-    res.Body = "Server is running";
+    res.StatusLine.StatusCode = "200";
+    res.Body = "OK";
 });
 
-// Start listening
-await app.Start(IPAddress.Loopback, 8080);
+// Start server
+await server.Start(IPAddress.Parse("127.0.0.1"), 8000);
 ```
 
 ## Testing
