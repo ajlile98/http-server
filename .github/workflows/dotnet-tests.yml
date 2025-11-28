@@ -25,10 +25,10 @@ jobs:
       run: dotnet build --no-restore --configuration Release
     
     - name: Run tests
-      run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      run: dotnet test HttpServer.Tests/HttpServer.Tests.csproj --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
     
     - name: Run tests with coverage
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test HttpServer.Tests/HttpServer.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
     
     - name: Generate coverage report
       run: |
