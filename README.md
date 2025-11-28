@@ -1,6 +1,6 @@
 # HTTP Server
 
-A production-ready HTTP server implementation in C# demonstrating modern design patterns, dependency injection, and RFC 9110-compliant HTTP request parsing. Built with .NET 10 using clean architecture principles.
+A demo HTTP server implementation in C# demonstrating modern design patterns, dependency injection, and RFC 9110-compliant HTTP request parsing. Built with .NET 10 using clean architecture principles.
 
 ## Overview
 
