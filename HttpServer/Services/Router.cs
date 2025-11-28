@@ -30,7 +30,7 @@ public class Router : IRouter
   public void Post(string routePath, Action<HttpRequest, HttpResponse> handler)
     => AddRoute(HttpMethod.Post, routePath, handler);
   public void Put(string routePath, Action<HttpRequest, HttpResponse> handler)
-    => AddRoute(HttpMethod.Post, routePath, handler);
+    => AddRoute(HttpMethod.Put, routePath, handler);
   public void Delete(string routePath, Action<HttpRequest, HttpResponse> handler)
     => AddRoute(HttpMethod.Delete, routePath, handler);
   public Route? FindRoute(string method, string path)
