@@ -243,11 +243,11 @@ dotnet build
 dotnet run
 ```
 
-The server will start on `127.0.0.1:42069` and wait for incoming connections.
+The server will start on `127.0.0.1:8000` and wait for incoming connections.
 
 ## Testing
 
 You can test the server with curl:
 ```bash
-curl -X GET http://localhost:42069/ -d "test data"
+curl -X GET http://localhost:8000/ -d "test data"
 ```

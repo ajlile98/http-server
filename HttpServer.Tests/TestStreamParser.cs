@@ -60,7 +60,7 @@ public sealed class TestStreamParser
   [TestMethod]
   public async Task TestGoodGetRequestLine()
   {
-    var requestText = "GET / HTTP/1.1\r\nHost: localhost:42069\r\nUser-Agent: curl/7.81.0\r\nAccept: */*\r\n\r\n";
+    var requestText = "GET / HTTP/1.1\r\nHost: localhost:8000\r\nUser-Agent: curl/7.81.0\r\nAccept: */*\r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
@@ -79,7 +79,7 @@ public sealed class TestStreamParser
   [TestMethod]
   public async Task TestGoodGetRequestLineWithPath()
   {
-    var requestText = "GET /coffee HTTP/1.1\r\nHost: localhost:42069\r\nUser-Agent: curl/7.81.0\r\nAccept: */*\r\n\r\n";
+    var requestText = "GET /coffee HTTP/1.1\r\nHost: localhost:8000\r\nUser-Agent: curl/7.81.0\r\nAccept: */*\r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
@@ -122,7 +122,7 @@ public sealed class TestStreamParser
   [TestMethod]
   public async Task TestValidSingleHeader()
   {
-    var requestText = "GET / HTTP/1.1\r\nHost: localhost:42069\r\n\r\n";
+    var requestText = "GET / HTTP/1.1\r\nHost: localhost:8000\r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
@@ -134,13 +134,13 @@ public sealed class TestStreamParser
 
     Assert.IsNotNull(request);
     Assert.IsTrue(request.Headers.ContainsKey("Host"));
-    Assert.AreEqual("localhost:42069", request.Headers["Host"]);
+    Assert.AreEqual("localhost:8000", request.Headers["Host"]);
   }
 
   [TestMethod]
   public async Task TestValidSingleHeaderWithExtraWhitespace()
   {
-    var requestText = "GET / HTTP/1.1\r\n          Host: localhost:42069          \r\n\r\n";
+    var requestText = "GET / HTTP/1.1\r\n          Host: localhost:8000          \r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
@@ -152,13 +152,13 @@ public sealed class TestStreamParser
 
     Assert.IsNotNull(request);
     Assert.IsTrue(request.Headers.ContainsKey("Host"));
-    Assert.AreEqual("localhost:42069", request.Headers["Host"]);
+    Assert.AreEqual("localhost:8000", request.Headers["Host"]);
   }
 
   [TestMethod]
   public async Task TestValid2HeadersWithExistingHeaders()
   {
-    var requestText = "GET / HTTP/1.1\r\nHost: localhost:42069\r\nUser-Agent: TestClient/1.0\r\nAccept: */*\r\n\r\n";
+    var requestText = "GET / HTTP/1.1\r\nHost: localhost:8000\r\nUser-Agent: TestClient/1.0\r\nAccept: */*\r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
@@ -170,7 +170,7 @@ public sealed class TestStreamParser
 
     Assert.IsNotNull(request);
     Assert.HasCount(3, request.Headers);
-    Assert.AreEqual("localhost:42069", request.Headers["Host"]);
+    Assert.AreEqual("localhost:8000", request.Headers["Host"]);
     Assert.AreEqual("TestClient/1.0", request.Headers["User-Agent"]);
     Assert.AreEqual("*/*", request.Headers["Accept"]);
   }
@@ -178,7 +178,7 @@ public sealed class TestStreamParser
   [TestMethod]
   public async Task TestInvalidSpacingHeader()
   {
-    var requestText = "GET / HTTP/1.1\r\nHost : localhost:42069\r\n\r\n";
+    var requestText = "GET / HTTP/1.1\r\nHost : localhost:8000\r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
@@ -199,7 +199,7 @@ public sealed class TestStreamParser
   [TestMethod]
   public async Task TestInvalidCharacterInHeaderKey()
   {
-    var requestText = "GET / HTTP/1.1\r\nH©st: localhost:42069\r\n\r\n";
+    var requestText = "GET / HTTP/1.1\r\nH©st: localhost:8000\r\n\r\n";
     var requestBytes = Encoding.UTF8.GetBytes(requestText);
     var memoryStream = new MemoryStream(requestBytes);
     
