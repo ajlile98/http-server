@@ -10,12 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace HttpServerApp.Services;
 
-public class HttpServer(ILogger<HttpServer> logger, IStreamParserFactory parserFactory, IHttpFactory httpFactory) : IHttpServer
+public class HttpServer(
+  ILogger<HttpServer> logger, 
+  IStreamParserFactory parserFactory, 
+  IHttpFactory httpFactory,
+  IRouter router
+) : IHttpServer
 {
   TcpListener? server;
   private readonly ILogger<HttpServer> _logger = logger;
   private readonly IStreamParserFactory _parserFactory = parserFactory;
   private readonly IHttpFactory _httpFactory = httpFactory;
+  public IRouter Router {get;} = router;
   public async Task Start(IPAddress iPAddress, int port)
   {
     if (server == null)
@@ -56,19 +62,26 @@ public class HttpServer(ILogger<HttpServer> logger, IStreamParserFactory parserF
     var req = await _httpFactory.GetRequestFromStream(networkStream);
     _logger.LogDebug($"Request: {req}");
 
-    var res_body = Encoding.UTF8.GetBytes(req.Body);
-    var res = new HttpResponse()
+    var res = new HttpResponse();
+    // {
+    //   StatusLine = new(),
+    //   Headers = new()
+    //   {
+    //     {"Connection", "close"},
+    //     {"Content-Type", "text/plain"},
+    //   },
+    //   Body = req.Body,
+    // };
+    var route = Router.FindRoute(req.RequestLine.Method.ToString(), req.RequestLine.RequestTarget);
+    if(route == null)
     {
-      StatusLine = new(),
-      Headers = new()
-      {
-        {"Content-Length", $"{Encoding.UTF8.GetByteCount(req.Body)}"},
-        {"Connection", "close"},
-        {"Content-Type", "text/plain"},
-      },
-      Body = req.Body,
-    };
-
+      res.StatusLine.StatusCode = "400";
+      res.StatusLine.ReasonPhrase = "Bad Request";
+    }
+    else
+    {
+      route.Handler.Invoke(req, res);
+    }
     _logger.LogDebug($"Response: {res}");
     await networkStream.WriteAsync(Encoding.UTF8.GetBytes(res.ToString()));
 

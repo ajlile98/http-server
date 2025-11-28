@@ -42,10 +42,25 @@ builder.ConfigureServices((context, services) =>
     services.AddSingleton<IStreamParserFactory, StreamParserFactory>();
     services.AddSingleton<IHttpFactory, HttpFactory>();
     services.AddSingleton<IHttpServer, HttpServer>();
+    services.AddSingleton<IRouter, Router>();
 });
 
 var host = builder.Build();
 
 // DI automatically creates HttpServer with its logger dependency
 var server = host.Services.GetRequiredService<IHttpServer>();
+// Add routes to the server's router
+server.Router.Get("/", (req, res) =>
+{
+    res.StatusLine.StatusCode = "200";
+    res.Body = "Hello World";
+    res.Headers["Content-Type"] = "text/plain";
+});
+
+server.Router.Post("/api/users", (req, res) =>
+{
+    res.StatusLine.StatusCode = "201";
+    res.Body = req.Body;
+});
+
 await server.Start(IPAddress.Parse("127.0.0.1"), 8000);

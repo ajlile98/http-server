@@ -13,6 +13,16 @@ public class HttpResponse
   {
     var sb = new StringBuilder();
     
+    if (!string.IsNullOrEmpty(Body))
+    {
+      var bodyBytes = Encoding.UTF8.GetByteCount(Body);
+      Headers["Content-Length"] = bodyBytes.ToString();
+    }
+    else
+    {
+      Headers["Content-Length"] = "0";
+    }
+    
     // Status line
     sb.AppendLine($"{StatusLine.HttpVersion} {StatusLine.StatusCode} {StatusLine.ReasonPhrase}");
     
