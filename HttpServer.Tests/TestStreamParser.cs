@@ -4,6 +4,7 @@ using HttpServerApp.Services;
 using HttpServerApp.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
+using HttpMethod = HttpServerApp.Models.HttpMethod;
 
 namespace HttpServer.Tests;
 
@@ -70,7 +71,7 @@ public sealed class TestStreamParser
     var request = await httpFactory.GetRequestFromStream(memoryStream);
 
     Assert.IsNotNull(request);
-    Assert.AreEqual("GET", request.RequestLine.Method);
+    Assert.AreEqual(HttpMethod.Get, request.RequestLine.Method);
     Assert.AreEqual("/", request.RequestLine.RequestTarget);
     Assert.AreEqual("1.1", request.RequestLine.HttpVersion);
   }
@@ -89,7 +90,7 @@ public sealed class TestStreamParser
     var request = await httpFactory.GetRequestFromStream(memoryStream);
 
     Assert.IsNotNull(request);
-    Assert.AreEqual("GET", request.RequestLine.Method);
+    Assert.AreEqual(HttpMethod.Get, request.RequestLine.Method);
     Assert.AreEqual("/coffee", request.RequestLine.RequestTarget);
     Assert.AreEqual("1.1", request.RequestLine.HttpVersion);
   }
@@ -110,7 +111,7 @@ public sealed class TestStreamParser
     TestContext?.WriteLine($"Full request:\n{request}");
 
     Assert.IsNotNull(request);
-    Assert.AreEqual("POST", request.RequestLine.Method);
+    Assert.AreEqual(HttpMethod.Post, request.RequestLine.Method);
     Assert.AreEqual("/api/data", request.RequestLine.RequestTarget);
     Assert.AreEqual("1.1", request.RequestLine.HttpVersion);
     Assert.AreEqual("application/json", request.Headers["Content-Type"]);

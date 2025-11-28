@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using HttpServerApp.Interfaces;
 using HttpServerApp.Models;
 using Microsoft.Extensions.Logging;
+using HttpMethod = HttpServerApp.Models.HttpMethod;
 
 namespace HttpServerApp.Services;
 
@@ -92,7 +93,7 @@ public class HttpFactory(ILogger<HttpFactory> logger, IStreamParserFactory strea
     {
       RequestLine = new()
       {
-        Method = method,
+        Method = new HttpMethod(method),
         RequestTarget = requestTarget,
         HttpVersion = httpVersion,
       },

@@ -34,6 +34,6 @@ public class HttpRequest
 public class RequestLine
 {
   public string HttpVersion {get; set;} = "1.1";
-  public string Method {get; set;} = "GET";
+  public HttpMethod Method {get; set;} = HttpMethod.Get;
   public string RequestTarget {get;set;} = "/";
 }
