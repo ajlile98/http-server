@@ -4,26 +4,19 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using HttpServerApp.Interfaces;
+using Microsoft.Extensions.Configuration;
 
-// void GetHttpHandler(HttpRequest req, HttpResponse res)
-// {
-//     Console.WriteLine("Http Request!");
-//     Console.WriteLine($"Method: {req.Method}");
-//     Console.WriteLine($"Path: {req.Path}");
-//     Console.WriteLine($"Headers:");
-//     foreach (var header in req.Headers)
-//     {
-//         Console.WriteLine($"  {header.Key}: {header.Value}");
-//     }
-//     Console.WriteLine($"Body: {req.Body}");
+var builder = Host.CreateDefaultBuilder(args)
+    .UseContentRoot(AppContext.BaseDirectory);
 
-//     res.StatusCode = 200;
-//     res.StatusMessage = "OK";
-//     res.Headers["Content-Type"] = "text/plain";
-//     res.Body = req.Body;
-// }
-
-var builder = Host.CreateDefaultBuilder(args);
+builder.ConfigureAppConfiguration((context, config) =>
+{
+    config.SetBasePath(context.HostingEnvironment.ContentRootPath)
+          .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+          .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+          .AddEnvironmentVariables()
+          .AddCommandLine(args);
+});
 
 builder.ConfigureServices((context, services) =>
 {
@@ -47,6 +40,10 @@ builder.ConfigureServices((context, services) =>
 
 var host = builder.Build();
 
+var config = host.Services.GetRequiredService<IConfiguration>();
+
+Console.WriteLine($"Config loaded - Host: {config["Server:Host"]}, Port: {config["Server:Port"]}");
+
 // DI automatically creates HttpServer with its logger dependency
 var server = host.Services.GetRequiredService<IHttpServer>();
 // Add routes to the server's router
@@ -63,4 +60,7 @@ server.Router.Post("/api/users", (req, res) =>
     res.Body = req.Body;
 });
 
-await server.Start(IPAddress.Parse("127.0.0.1"), 8000);
+var iPAddress = config["Server:Host"] ?? throw new InvalidOperationException("Server:Host configuration is required");
+var port = int.Parse(config["Server:Port"] ?? throw new InvalidOperationException("Server:Port configuration is required"));
+
+await server.Start(IPAddress.Parse(iPAddress), port);

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Development": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:8000",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
