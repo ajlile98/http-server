@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "HttpServer\HttpServer.csproj", "{4AC457AC-731D-4AE1-8140-24350D297EA8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8BB2717D-0AC0-4C92-B681-1374CC9AF99F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer.Tests", "HttpServer.Tests\HttpServer.Tests.csproj", "{49C4CF3B-FD6F-4140-AEF2-05968B022CA1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1B4F9F34-A1DB-4D4A-9C31-3B0E5C1F5E2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "src\HttpServer\HttpServer.csproj", "{4AC457AC-731D-4AE1-8140-24350D297EA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer.Tests", "tests\HttpServer.Tests\HttpServer.Tests.csproj", "{49C4CF3B-FD6F-4140-AEF2-05968B022CA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,5 +48,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4AC457AC-731D-4AE1-8140-24350D297EA8} = {8BB2717D-0AC0-4C92-B681-1374CC9AF99F}
+		{49C4CF3B-FD6F-4140-AEF2-05968B022CA1} = {1B4F9F34-A1DB-4D4A-9C31-3B0E5C1F5E2A}
 	EndGlobalSection
 EndGlobal
