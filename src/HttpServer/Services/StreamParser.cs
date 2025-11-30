@@ -33,7 +33,7 @@ public class StreamParser : IStreamParser
       {
         var line = _remainingData.Substring(0, lineEnd);
         _remainingData = _remainingData.Substring(lineEnd + 1);
-        return line;
+        return line.TrimEnd('\r'); // Strip carriage return if present
       }
 
       int bytesRead = _stream.Read(buffer, 0, _bufferSize);
