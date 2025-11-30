@@ -15,28 +15,36 @@ This project implements a fully-featured HTTP server from scratch, showcasing:
 
 ```
 http-server/
-├── Models/                    # Data models
-│   ├── HttpRequest.cs         # Request with RequestLine and headers
-│   ├── HttpResponse.cs        # Response with StatusLine and auto Content-Length
-│   ├── HttpMethod.cs          # Strongly-typed HTTP method enumeration
-│   ├── Route.cs               # Route handler with method, path, and delegate
-│   ├── ParserState.cs         # State machine for HTTP parsing
-│   └── RequestLine.cs         # HTTP request line (method, target, version)
-├── Interfaces/                # Contract definitions
-│   ├── IHttpServer.cs         # Server interface with routing
-│   ├── IRouter.cs             # Route management and lookup
-│   ├── IHttpFactory.cs        # HTTP request parsing
-│   ├── IStreamParser.cs       # Low-level stream reading
-│   └── IStreamParserFactory.cs # Stream parser creation
-├── Services/                  # Core implementation
-│   ├── HttpServer.cs          # Main TCP server and client handling
-│   ├── Router.cs              # Nested Dictionary routing with ANY wildcard
-│   ├── HttpFactory.cs         # RFC 9110 compliant HTTP parser
-│   ├── StreamParser.cs        # Async line-based stream reading
-│   └── StreamParserFactory.cs # Factory for stream parsers
-├── Test/                      # (Currently empty, tests in separate project)
-├── Program.cs                 # Dependency injection and app entry point
-└── HttpServer.csproj          # Project configuration
+├── src/
+│   └── HttpServer/            # Main application
+│       ├── Models/            # Data models
+│       │   ├── HttpRequest.cs         # Request with RequestLine and headers
+│       │   ├── HttpResponse.cs        # Response with StatusLine and auto Content-Length
+│       │   ├── HttpMethod.cs          # Strongly-typed HTTP method enumeration
+│       │   ├── Route.cs               # Route handler with method, path, and delegate
+│       │   └── ParserState.cs         # State machine for HTTP parsing
+│       ├── Interfaces/        # Contract definitions
+│       │   ├── IHttpServer.cs         # Server interface with routing
+│       │   ├── IRouter.cs             # Route management and lookup
+│       │   ├── IHttpFactory.cs        # HTTP request parsing
+│       │   ├── IStreamParser.cs       # Low-level stream reading
+│       │   └── IStreamParserFactory.cs # Stream parser creation
+│       ├── Services/          # Core implementation
+│       │   ├── HttpServer.cs          # Main TCP server and client handling
+│       │   ├── Router.cs              # Nested Dictionary routing with ANY wildcard
+│       │   ├── HttpFactory.cs         # RFC 9110 compliant HTTP parser
+│       │   ├── StreamParser.cs        # Async line-based stream reading
+│       │   └── StreamParserFactory.cs # Factory for stream parsers
+│       ├── Program.cs         # Dependency injection and app entry point
+│       └── HttpServer.csproj  # Project configuration
+├── tests/
+│   └── HttpServer.Tests/      # Unit tests
+│       ├── TestStreamParser.cs    # Stream parsing tests (11 tests)
+│       ├── TestHttpResponse.cs    # Response formatting tests (25 tests)
+│       ├── TestRouter.cs          # Routing tests (25 tests)
+│       └── HttpServer.Tests.csproj
+├── Directory.Build.props      # Shared build configuration
+└── HttpServer.sln             # Solution file
 ```
 
 ## Architecture
@@ -164,14 +172,19 @@ Comprehensive test suite with 67+ tests:
 - **TestRouter** (25 tests): Route registration, lookup, handler execution, priority
 - **Other tests**: Factory, request parsing, header validation
 
-Run tests:
+Run tests from solution root:
 ```bash
 dotnet test
 ```
 
-Generate coverage report:
+Run with coverage:
 ```bash
 dotnet test --collect:"XPlat Code Coverage"
+```
+
+Generate coverage report:
+```bash
+dotnet tool install -g dotnet-reportgenerator-globaltool
 reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html
 ```
 
@@ -238,9 +251,19 @@ This implementation demonstrates:
 
 ## Building and Running
 
+Build from solution root:
 ```bash
 dotnet build
-dotnet run
+```
+
+Run the server:
+```bash
+dotnet run --project src/HttpServer
+```
+
+Or use watch mode for development:
+```bash
+dotnet watch --project src/HttpServer
 ```
 
 The server will start on `127.0.0.1:8000` and wait for incoming connections.
